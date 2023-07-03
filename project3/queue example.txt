@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+
+// Define the Queue struct
+typedef struct {
+    pid_t* arr; // array to hold elements in the queue
+    int front; // index of front element
+    int rear; // index of rear element
+    int size; // current size of queue
+    int capacity; // maximum capacity of queue
+} Queue;
+
+// Create a new queue with given capacity
+Queue* createQueue(int capacity) {
+    Queue* queue = (Queue*) malloc(sizeof(Queue));
+    queue->arr = (pid_t*) malloc(capacity * sizeof(pid_t));
+    queue->front = 0;
+    queue->rear = -1;
+    queue->size = 0;
+    queue->capacity = capacity;
+    return queue;
+}
+
+// Check if the queue is empty
+int isEmpty(Queue* queue) {
+    return (queue->size == 0);
+}
+
+// Check if the queue is full
+int isFull(Queue* queue) {
+    return (queue->size == queue->capacity);
+}
+
+// Add an element to the rear of the queue
+void enqueue(Queue* queue, pid_t element) {
+    if (isFull(queue)) {
+        printf("Queue is full. Cannot enqueue.\n");
+        return;
+    }
+    queue->rear = (queue->rear + 1) % queue->capacity;
+    queue->arr[queue->rear] = element;
+    queue->size++;
+}
+
+// Remove the front element from the queue and return it
+pid_t dequeue(Queue* queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty. Cannot dequeue.\n");
+        return -1;
+    }
+    pid_t element = queue->arr[queue->front];
+    queue->front = (queue->front + 1) % queue->capacity;
+    queue->size--;
+    return element;
+}
+
+// Get the front element of the queue without removing it
+pid_t peek(Queue* queue) {
+    if (isEmpty(queue)) {
+        printf("Queue is empty. Cannot peek.\n");
+        return -1;
+    }
+    return queue->arr[queue->front];
+}
+
+// Print the elements of the queue
+void printQueue(Queue* queue) {
+    printf("Queue: ");
+    int i;
+    for (i = 0; i < queue->size; i++) {
+        int index = (queue->front + i) % queue->capacity;
+        printf("%d ", queue->arr[index]);
+    }
+    printf("\n");
+}
+
+// Main function to test the queue
+int main() {
+    Queue* queue = createQueue(5);
+    pid_t pid1 = 1234;
+    pid_t pid2 = 5678;
+    pid_t pid3 = 91011;
+    enqueue(queue, pid1);
+    enqueue(queue, pid2);
+    enqueue(queue, pid3);
+    printQueue(queue); // Expected output: "Queue: 1234 5678 91011\n"
+    printf("Dequeued element: %d\n", dequeue(queue)); // Expected output: "Dequeued element: 1234\n"
+    printf("Peeked element: %d\n", peek(queue)); // Expected output: "Peeked element: 5678\n"
+    printQueue(queue); // Expected output: "Queue: 5678 91011\n"
+    return 0;
+}
